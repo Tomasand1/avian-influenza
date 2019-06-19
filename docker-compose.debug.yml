@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+    api:
+        image: avian-influenza
+        build: ./api
+        volumes:
+            - ./api:/usr/src/app
+        environment:
+            NODE_ENV: production
+        ports:
+            - 8080:8080
+    

@@ -1,0 +1,31 @@
+{
+    "presets": [
+        [
+            "@babel/preset-env",
+            {
+                "targets": {
+                    "node": "current"
+                }
+            }
+        ]
+    ],
+    "plugins": [
+        [
+            "module-resolver",
+            {
+                "cwd": "./build",
+                "root": [
+                    "./build"
+                ],
+                "alias": {
+                    "@app": "./",
+                    "@lib": "./lib/",
+                    "@config": "./config/"
+                },
+                "extensions": [
+                    ".js"
+                ]
+            }
+        ]
+    ]
+}
