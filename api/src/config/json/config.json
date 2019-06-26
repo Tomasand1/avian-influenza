@@ -1,0 +1,10 @@
+{
+    "databases": {
+        "avian_influenza": {
+            "host": "localhost",
+            "dialect": "postgres",
+            "name": "avian_influenza"
+        }
+    },
+    "models": []
+}
