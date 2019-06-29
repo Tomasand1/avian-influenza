@@ -17,13 +17,40 @@ All responses will have a form:
 }
 ```
 
+Error format:
+
+```json
+    {
+        "code": "FIELDS_VALIDATION_ERROR",
+        "message": "One or more fields raised validation errors.",
+        "fields": {
+            "email": "Invalid email address.",
+            "password": "Password too short."
+        }
+    }
+```
+
 Subsequent response definitions will only detail the expected values of `data` field
 
-### List of all viruses' types (disease and serotype)
+All request must follow version identifier:
+
+**Version: 1.0.0** `/v1/`
+
+## Data
+
+### List of all virus' types (disease and serotype)
+
+---
 
 **Definition**
 
-`GET /virus/type`
+`GET /data/type`
+
+**Arguments**
+
+Query (Optional):
+
+- `id` data entry iid
 
 **Response**
 
@@ -33,26 +60,34 @@ Subsequent response definitions will only detail the expected values of `data` f
 {
     "data": [
         {
-            "id": "virus id",
+            "id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
             "disease": "avian-influenza",
             "serotype": "H5N6 HPAI",
         }
     ],
-    "message": "Data retrieved or null",
+    "message": "Entry was successfully retrieved",
     "status": 200,
     "error": null
 }
 ```
 
-### Get specific virus type
+### Get data about viruses
+
+---
 
 **Definition**
 
-`GET /virus/type/<virus_identifier>`
+`GET /data`
 
 **Arguments**
 
-ID of the virus about which information is requested
+Query (Optional):
+
+- `id` to get data of specific virus
+- `type` to get data of specific virus type
+- `region` to get data from specific region
+- `start date` to get specific data range
+- `end date` to get data of specific range
 
 **Response**
 
@@ -62,31 +97,11 @@ ID of the virus about which information is requested
 
 ```json
 {
-    "data": {
-        "id": "virus id",
-        "disease": "avian-influenza",
-        "serotype": "H5N6 HPAI",
-    },
-    "message": "virus has been found or null",
-    "status": 200,
-    "error": null,
-}
-```
-
-### Get data about viruses
-
-**Definition**
-
-`GET /virus`
-
-**Response**
-
-`200 OK` on success
-
-```json
-{
     "data": [
         {
+            "id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
+            "disease": "avian-influenza",
+            "serotype": "H5N6 HPAI",
             "status": "Confirmed",
             "region": "Americas",
             "country": "United States of America",
@@ -97,128 +112,30 @@ ID of the virus about which information is requested
             "latitude": 36.378,
             "observation_date": "15/04/2019",
             "reporting_date": "24/04/2019",
-            ...
+            "sum_at_risk": 200,
+            "sum_cases": 300,
+            "sum_deaths": null,
+            "sum_destroyed": null,
+            "sum_slaughtered": 1524,
+            "humans_gender_desc": "Male",
+            "human_age": 24,
+            "humans_affected": 23453,
+            "human_deaths": 0,
         }
-    ]
-}
-```
-
-### Get data about specific virus
-
-**Definiton**
-
-`GET /virus/<virus-identifier>`
-
-**Arguments**
-
-ID of the virus about which information is requested
-
-**Response**
-
-- `200 OK` on success
-- `400 BAD REQUEST` on request validation fail
-- `404 NOT FOUND` if virus is not found
-
-```json
-{
-    "data": {
-        "status": "Confirmed",
-        "region": "Americas",
-        "country": "United States of America",
-        "admin1": "California",
-        "locality_name": "Monterey County",
-        "locality_quality": "Exact",
-        "longitude": -121.656,
-        "latitude": 36.378,
-        "observation_date": "15/04/2019",
-        "reporting_date": "24/04/2019",
-        ...
-    },
-    "message": "virus has been found or null",
+    ],
+    "message": "Entry was successfully retrieved",
     "status": 200,
     "error": null,
 }
 ```
-
-### Get virus' raw coordinates
-
-**Definition**
-
-`GET coordinates/<virus-indentifier>`
-
-**Arguments**
-
-ID of virus which coordinates are required
-
-**Response**
-
-- `200 OK` on success
-- `400 BAD REQUEST` on request validation fail
-- `404 NOT FOUND` if virus is not found
-
-```json
-{
-    "data": {
-        "region": "Americas",
-        "country": "United States of America",
-        "admin1": "California",
-        "locality_name": "Monterey County",
-        "locality_quality": "Exact",
-        "longitude": -121.656,
-        "latitude": 36.378,
-    },
-    "message": "Virus raw location was found",
-    "status": 200,
-    "error": null,
-}
-```
-
-### Get virus' location as spatial geometry field
-
-### Get all viruses of specific type
-
-### Get virus statistics
-
-**Definition**
-
-`GET /statistics/<virus-identifier>`
-
-**Arguments**
-
-ID of virus which statistics is required
-
-**Response**
-
-- `200 OK` on success
-- `400 BAD REQUEST` on request validation fail
-- `404 NOT FOUND` if virus is not found
-
-```json
-{
-    "data": {
-        "sum_at_risk": 200,
-        "sum_cases": 300,
-        "sum_deaths": null,
-        "sum_destroyed": null,
-        "sum_slaughtered": 1524,
-        "humans_gender_desc": "Male",
-        "human_age": 24,
-        "humans_affected": 23453,
-        "human_deaths": 0,
-    },
-    "message": "Virus statistics was found",
-    "status": 200,
-    "error": null,
-}
-```
-
-### Get virus' sources
 
 ### Create new virus entry
 
+---
+
 **Definition**
 
-`POST /virus`
+`POST /data`
 
 **Arguments**
 
@@ -229,10 +146,34 @@ Properties and values of new entry
 - `200 OK` on success
 - `400 BAD REQUEST` on request validation fail
 - `401 UNAUTHORIZED` if user is unauthorized to add new entries
+- `409 CONFLICT` data entry already exists
 
 ```json
 {
-    "data": null,
+    "data": {
+        "id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
+        "disease": "avian-influenza",
+        "serotype": "H5N6 HPAI",
+        "status": "Confirmed",
+        "region": "Americas",
+        "country": "United States of America",
+        "admin1": "California",
+        "locality_name": "Monterey County",
+        "locality_quality": "Exact",
+        "longitude": -121.656,
+        "latitude": 36.378,
+        "observation_date": "15/04/2019",
+        "reporting_date": "24/04/2019",
+        "sum_at_risk": 200,
+        "sum_cases": 300,
+        "sum_deaths": null,
+        "sum_destroyed": null,
+        "sum_slaughtered": 1524,
+        "humans_gender_desc": "Male",
+        "human_age": 24,
+        "humans_affected": 23453,
+        "human_deaths": 0,
+    },
     "message": "Entry was successfully created",
     "status": 200,
     "error": null,
@@ -243,11 +184,17 @@ Properties and values of new entry
 
 **Definition**
 
-`PATCH /virus/<virus-identifier>`
+`PATCH /data/<virus-identifier>`
 
 **Arguments**
 
-Properties and values to change
+Path (Required):
+
+- `id` data entry id
+
+Body (Required):
+
+- Properties and values to change
 
 **Response**
 
@@ -258,7 +205,14 @@ Properties and values to change
 
 ```json
 {
-    "data": null,
+    "data": {
+        "id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
+        "region": "Americas",
+        "country": "United States of America",
+        "admin1": "California",
+        "locality_name": "Monterey County",
+        "locality_quality": "Exact",
+    },
     "message": "Values have been updated",
     "status": 200,
     "error": null,
@@ -269,15 +223,17 @@ Properties and values to change
 
 **Definition**
 
-`DELETE /virus/<virus-identifier>`
+`DELETE /data/<virus-identifier>`
 
 **Arguments**
 
-ID of virus which needs to be deleted
+Path (Required):
+
+- `id` data entry ID
 
 **Response**
 
-- `200 OK` on success
+- `204 NO CONTENT` on success
 - `400 BAD REQUEST` on request validation fail
 - `401 UNAUTHORIZED` on user authorization fail
 - `404 NOT FOUND` if virus is not found
@@ -286,20 +242,24 @@ ID of virus which needs to be deleted
 {
     "data": null,
     "message": "Virus entry was successfully deleted",
-    "status": 200,
+    "status": 204,
     "error": null,
 }
 ```
+
+## Users
 
 ### Get user info
 
 **Definition**
 
-`GET /user/<user-identifier>`
+`GET /users`
 
 **Arguments**
 
-ID of the user
+Query (Optional):
+
+- `id` user's id
 
 **Response**
 
@@ -311,6 +271,7 @@ ID of the user
 ```json
 {
     "data": {
+        "id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
         "firstname": "John",
         "lastname": "Doe",
         "email": "john@doe.com",
@@ -329,19 +290,33 @@ ID of the user
 
 **Arguments**
 
-Properties and values of new user
+Body (Required):
+
+- `firstname` user's first name
+- `lastname` user's last name
+- `role` user's role
+- `email` user's email
+- `password` user's password
+- `created_on` date of creation
 
 **Response**
 
-- `200 OK` on success
+- `201 CREATED` on success
 - `400 BAD REQUEST` on request validation fail
 - `401 UNAUTHORIZED` on user authorization failed
+- `409 CONFLICT` on user already exists
 
 ```json
 {
-    "data": null,
+    "data": {
+        "id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
+        "firstname": "John",
+        "lastname": "Doe",
+        "email": "john@doe.com",
+        "role": "admin",
+    },
     "message": "User was successfully created",
-    "status": 200,
+    "status": 201,
     "error": null,
 }
 ```
@@ -354,7 +329,13 @@ Properties and values of new user
 
 **Arguments**
 
-Properties and values to update
+Path (Required):
+
+- `id` user's id
+
+Body (Required):
+
+- Properties and values to update
 
 **Response**
 
@@ -365,12 +346,16 @@ Properties and values to update
 
 ```json
 {
-    "data": null,
+    "data": {
+        "id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
+        "firstname": "Jonathan",
+    },
     "message": "User was successfully updated",
     "status": 200,
     "error": null,
 }
 ```
+
 ### Delete user
 
 **Definition**
@@ -379,20 +364,23 @@ Properties and values to update
 
 **Arguments**
 
-ID of user which needs to be deleted
+Path (Required):
+
+- `id` user which needs to be deleted
 
 **Response**
 
-- `200 OK` on success
+- `204 NO CONTENT` on success
 - `400 BAD REQUEST` on request validation fail
 - `401 UNAUTHORIZED` on user authorization fail
+- `403 FORBIDDEN` on user token invalid
 - `404 NOT FOUND` if user is not found
 
 ```json
 {
     "data": null,
     "message": "User was successfully deleted",
-    "status": 200,
+    "status": 204,
     "error": null,
 }
 ```
