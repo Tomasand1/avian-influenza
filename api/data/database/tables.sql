@@ -4,44 +4,46 @@ CREATE TABLE users(
 	last_name VARCHAR (50) NOT NULL,
 	password VARCHAR (50) NOT NULL,
 	email VARCHAR (355) UNIQUE NOT NULL,
-	created_on TIMESTAMP NOT NULL,
+	created_on TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
 	last_login TIMESTAMP
 );
 
 CREATE TABLE roles(
 	id serial PRIMARY KEY,
 	role_name VARCHAR (50) NOT NULL,
-	created_on TIMESTAMP NOT NULL,
+	created_on TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
 	updated_on TIMESTAMP
 );
 
 CREATE TABLE viruses(
 	id serial PRIMARY KEY,
-	status VARCHAR (50),
+	longitude NUMERIC,
+	latitude NUMERIC,
 	region VARCHAR (100),
 	country VARCHAR (355),
 	admin1 VARCHAR (355),
 	locality_name VARCHAR (355),
 	locality_quality VARCHAR (355),
-	longitude NUMERIC,
-	latitude NUMERIC,
-	observation_date DATE,
-	reporting_date DATE,
+	observation_date VARCHAR (10),
+	reporting_date VARCHAR (10),
+	status VARCHAR (50),
 	sum_at_risk NUMERIC,
 	sum_cases NUMERIC,
 	sum_deaths NUMERIC,
 	sum_destroyed NUMERIC,
 	sum_slaughtered NUMERIC,
-	humans_gender_desc NUMERIC,
+	humans_gender_desc VARCHAR (50),
 	human_age NUMERIC,
 	humans_affected NUMERIC,
-	humans_deaths NUMERIC
+	humans_deaths NUMERIC,
+	created_on TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
+	updated_on TIMESTAMP
 );
 
 CREATE TABLE sources(
 	id serial PRIMARY KEY,
 	source_name VARCHAR(100) NOT NULL,
-	created_on TIMESTAMP NOT NULL,
+	created_on TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
 	updated_on TIMESTAMP
 );
 
@@ -49,7 +51,7 @@ CREATE TABLE species(
 	id serial PRIMARY KEY,
 	species_type VARCHAR (100) NOT NULL,
 	species_name VARCHAR (100),
-	created_on TIMESTAMP NOT NULL,
+	created_on TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
 	updated_on TIMESTAMP
 );
 
@@ -57,7 +59,7 @@ CREATE TABLE types(
 	id serial PRIMARY KEY,
 	disease VARCHAR (100) NOT NULL,
 	serotype VARCHAR(100),
-	created_on TIMESTAMP NOT NULL,
+	created_on TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
 	updated_on TIMESTAMP
 );
 
