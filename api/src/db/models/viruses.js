@@ -69,9 +69,9 @@ export default sequelize => {
     );
 
     Viruses.associate = (models) => {
-        Viruses.hasOne(models.VirusType, { foreignKey: "virus_id" });
-        Viruses.hasMany(models.VirusSpecies, { foreignKey: "virus_id" });
-        Viruses.hasOne(models.VirusSources, { foreignKey: "virus_id" });
+        Viruses.hasOne(models.VirusType, { sourceKey: "id", foreignKey: "virus_id" });
+        Viruses.hasMany(models.VirusSpecies, { sourceKey: "id", foreignKey: "virus_id" });
+        Viruses.hasOne(models.VirusSources, { sourceKey: "id", foreignKey: "virus_id" });
     };
 
     return Viruses;

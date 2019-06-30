@@ -22,7 +22,10 @@ export default sequelize => {
     );
 
     VirusSources.associate = models => {
-        VirusSources.belongsTo(models.Sources, { foreignKey: 'id' });
+        VirusSources.belongsTo(models.Sources, {
+            sourceKey: 'sourceId',
+            foreignKey: 'id',
+        });
     };
 
     return VirusSources;
