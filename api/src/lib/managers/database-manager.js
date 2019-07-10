@@ -6,7 +6,6 @@ class DatabaseManager {
     async init() {
         await this.initDatabase();
         await this.initModels();
-        this.test();
         return this;
     }
 
@@ -69,6 +68,18 @@ class DatabaseManager {
         } catch (err) {
             //TODO: handle error
             console.log(`Failed to initialize model: ${err}`);
+        }
+    }
+
+    getModel(modelName) {
+        return this.models[modelName];
+    }
+
+    getConnection(dbName) {
+        if (this.databases[dbName]) {
+            return this.databases[dbName].connection;
+        } else {
+            return null;
         }
     }
 
