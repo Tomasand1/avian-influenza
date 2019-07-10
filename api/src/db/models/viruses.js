@@ -1,4 +1,4 @@
-import * as sequelize from 'sequelize';
+import * as Sequelize from 'sequelize';
 
 export default sequelize => {
     const Viruses = sequelize.define(
