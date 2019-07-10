@@ -6,7 +6,7 @@ class DatabaseManager {
     async init() {
         await this.initDatabase();
         await this.initModels();
-        // this.test();
+        this.test();
         return this;
     }
 
@@ -47,7 +47,6 @@ class DatabaseManager {
             }
             const configModels = config.models[0];
             for (const modelInfo of configModels['default']) {
-                console.log(this.databases[modelInfo.database]);
                 if (
                     !this.databases[modelInfo.database] ||
                     !this.databases[modelInfo.database].connection
@@ -57,7 +56,6 @@ class DatabaseManager {
                     );
                 }
                 try {
-                    console.log(this.databases);
                     const database = this.databases[modelInfo.database];
                     const model = database.connection.import(
                         join(pathModels, `${modelInfo.id}.js`),
