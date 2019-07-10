@@ -1,4 +1,5 @@
 import * as Sequelize from 'sequelize';
+import { DateUtils } from '../../lib/utils/date-utils';
 
 export default sequelize => {
     const Viruses = sequelize.define(
@@ -48,7 +49,7 @@ export default sequelize => {
                 type: Sequelize.INTEGER,
                 field: 'humans_affected',
             },
-            humansDeath: { type: Sequelize.INTEGER, field: 'humans_death' },
+            humansDeath: { type: Sequelize.INTEGER, field: 'humans_deaths' },
             formattedObservationDate: {
                 type: Sequelize.VIRTUAL,
                 get() {
