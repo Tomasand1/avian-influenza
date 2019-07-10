@@ -1,8 +1,8 @@
-import { Router } from "express";
-
+import { Router } from 'express';
+import { ApiEnvelopeResponse } from '../responses/api-envelope-response';
 
 export default class ApiRouter {
-    constructor () {
+    constructor() {
         this.router = Router({
             caseSensitive: true,
             strict: true,
@@ -10,7 +10,16 @@ export default class ApiRouter {
         });
     }
 
-    init () {
+    init() {
         return this.router;
+    }
+
+    createResponse(res, apiResponse) {
+        return res.status(apiResponse.code).json(apiResponse.getJson());
+    }
+
+    createSuccessResponse(req, res, data, message = null) {
+        const apiResponse = new ApiEnvelopeResponse(200, data, null, message);
+        this.createResponse(res, apiResponse);
     }
 }
