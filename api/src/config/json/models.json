@@ -1,0 +1,42 @@
+[
+    {
+        "id": "viruses",
+        "database": "avian_influenza"
+    },
+    {
+        "id": "types",
+        "database": "avian_influenza"
+    },
+    {
+        "id": "sources",
+        "database": "avian_influenza"
+    },
+    {
+        "id": "species",
+        "database": "avian_influenza"
+    },
+    {
+        "id": "virus-type",
+        "database": "avian_influenza"
+    },
+    {
+        "id": "virus-sources",
+        "database": "avian_influenza"
+    },
+    {
+        "id": "virus-species",
+        "database": "avian_influenza"
+    },
+    {
+        "id": "users",
+        "database": "avian_influenza"
+    },
+    {
+        "id": "roles",
+        "database": "avian_influenza"
+    },
+    {
+        "id": "user-roles",
+        "database": "avian_influenza"
+    }
+]

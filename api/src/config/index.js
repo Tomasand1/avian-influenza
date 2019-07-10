@@ -1,19 +1,20 @@
-import EnvConfig from "./config";
-import * as config from "./json/config.json";
-import * as models from "./json/models.json";
-import { ObjectUtils } from "../lib/utils/ObjectUtils";
+import EnvConfig from './config';
+import * as config from './json/config.json';
+import * as models from './json/models.json';
+import { ObjectUtils } from '../lib/utils/object-utils';
 
 class Configuration {
     getConfig() {
         try {
             // Merge Models Configuration
-            config.models.push(...models);
+            config.models.push(models);
             // Add dynamic config
             const env = EnvConfig.getConfig();
             const mergedConfig = ObjectUtils.deepMerge(config, env);
             return mergedConfig;
         } catch (err) {
-            throw new Error("failed to load file config file");
+            console.log(err);
+            throw new Error('Failed to load file');
         }
     }
 }

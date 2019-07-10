@@ -50,7 +50,7 @@ All request must follow version identifier:
 
 Query (Optional):
 
-- `id` data entry iid
+- `id` data entry id
 
 **Response**
 
