@@ -1,4 +1,5 @@
 import { resolve } from 'url';
+import databaseManager from './database-manager';
 
 class AppManager {
     async init() {
@@ -10,9 +11,7 @@ class AppManager {
             this.initializing = true;
             // database initializer
             try {
-                await new Promise((resolve, reject) => {
-                    resolve(true);
-                });
+                await databaseManager.init();
             } catch (err) {
                 console.log(err);
             }

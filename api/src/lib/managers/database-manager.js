@@ -1,43 +1,43 @@
-import * as Sequelize from 'sequelize';
+import Sequelize from 'sequelize';
 import config from '../../config';
+import { join } from 'path';
 
 class DatabaseManager {
-    init() {
-        this.initDatabase();
-        this.initModels();
+    async init() {
+        await this.initDatabase();
+        await this.initModels();
+        // this.test();
+        return this;
     }
 
     initDatabase() {
+        const databaseInfo = config.databases;
         this.databases = {};
-        const databaseData = config.databases;
-
-        if (databaseData !== undefined) {
-            for (const key in databaseData) {
-                const databaseInfo = databaseData[key];
+        for (const key in databaseInfo) {
+            if (databaseInfo.hasOwnProperty(key)) {
                 try {
-                    if ('mysql;postgres'.indexOf(databaseInfo.dialect) > -1) {
-                        const sequelizeOptions = this._getSequelizeDatabaseConfig(
-                            databaseInfo,
-                        );
-                        this.databases[key] = {
-                            connection: new Sequelize(
-                                databaseInfo.name,
-                                databaseInfo.login,
-                                databaseInfo.password,
-                                sequelizeOptions,
-                            ),
-                            dialect: databaseInfo.dialect,
-                            type: 'sequelize',
-                        };
-                    }
+                    this.databases[key] = {
+                        connection: new Sequelize(
+                            databaseInfo[key].name,
+                            databaseInfo[key].login,
+                            databaseInfo[key].password,
+                            {
+                                host: databaseInfo[key].host,
+                                dialect: databaseInfo[key].dialect,
+                            },
+                        ),
+                        dialect: databaseInfo[key].dialect,
+                        type: 'sequelize',
+                    };
                 } catch (err) {
-                    console.log('database error: ' + err);
+                    // TODO: handle error
+                    console.log(`Failed to initialize database: ${err}`);
                 }
             }
         }
     }
 
-    _initModels() {
+    initModels() {
         // Models
         this.models = {};
         try {
@@ -45,74 +45,48 @@ class DatabaseManager {
             if (!config.models) {
                 return;
             }
-            for (const modelInfo of config.models) {
+            const configModels = config.models[0];
+            for (const modelInfo of configModels['default']) {
+                console.log(this.databases[modelInfo.database]);
                 if (
                     !this.databases[modelInfo.database] ||
                     !this.databases[modelInfo.database].connection
                 ) {
                     throw new Error(
-                        `no database connection ${modelInfo.database}`,
+                        `Database was not initialized: ${modelInfo.database}`,
                     );
                 }
                 try {
+                    console.log(this.databases);
                     const database = this.databases[modelInfo.database];
                     const model = database.connection.import(
                         join(pathModels, `${modelInfo.id}.js`),
                     );
                     this.models[modelInfo.id] = model;
-                    this._serializeModel(modelInfo.id, model);
                 } catch (err) {
+                    //TODO: handle error
                     console.error(err);
-                    this.logger.error(err.message);
                 }
             }
-        } catch (error) {
-            this.logger.error(`initModels error ${error.message}`);
-        }
-    }
-
-    _serializeModel(modelName, model) {
-        // Add serialize instance method
-        let options = {};
-        try {
-            options = require(join(
-                __dirname,
-                '../../db/serializer/' + modelName + '.js',
-            )).default;
         } catch (err) {
-            // no-op
+            //TODO: handle error
+            console.log(`Failed to initialize model: ${err}`);
         }
-        model.prototype.serialize = factory(options);
     }
 
-    _getSequelizeDatabaseConfig(databaseInfo) {
-        const options = {
-            dialect: databaseInfo.dialect || 'postgres',
-            host: databaseInfo.host || 'localhost',
-            operatorsAliases: false,
-        };
-        return ObjectUtils.deepMerge(options, databaseInfo.options || {});
+    test() {
+        this.databases['avian_influenza'].connection
+            .authenticate()
+            .then(() => {
+                console.log('Connection has been established successfully.');
+            })
+            .catch(err => {
+                console.error('Unable to connect to the database:', err);
+            });
     }
 
-    getModel(modelName) {
-        return this.models[modelName];
-    }
-
-    closeConnections() {
-        Object.keys(this.databases).forEach(key => {
-            const database = this.databases[key];
-            if (database.type === 'sequelize') {
-                database.connection.close();
-            }
-        });
-    }
-
-    getConnection(dbName) {
-        if (this.databases[dbName]) {
-            return this.databases[dbName].connection;
-        } else {
-            return null;
-        }
+    closeDatabase() {
+        sequelize.close();
     }
 }
 
