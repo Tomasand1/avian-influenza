@@ -1,16 +1,20 @@
-// TODO: import error definition
+import * as config from '../../config/json/apiConfig.json';
 
 export class ApiEnvelopeResponse {
-    constructor(code, data = null, error = null, message = null) {
-        this.code = code;
+    constructor(status, data = null, error = null, message = null) {
+        this.status = status;
         this.data = data;
         this.error = error;
+        this.message = message;
+        console.log(status);
     }
 
     getJson() {
         let response = {};
         if (this.error) {
-            // TODO: create error
+            if (this.message === null) {
+                this.message = config.responseMessages['error'];
+            }
             response = {
                 data: this.data,
                 message: this.message,
@@ -19,7 +23,12 @@ export class ApiEnvelopeResponse {
             };
         } else {
             if (this.message === null) {
-                this.message = 'Success';
+                const message = config.responseMessages[this.status];
+                if (!message) {
+                    this.message = config.responseMessages['defaultSuccess'];
+                } else {
+                    this.message = message;
+                }
             }
 
             response = {
