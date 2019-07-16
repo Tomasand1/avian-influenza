@@ -19,18 +19,18 @@ export default class ApiRouter {
         return res.status(apiResponse.status).json(apiResponse.getJson());
     }
 
-    createSuccessResponse(req, res, data, message = null) {
-        const apiResponse = new ApiEnvelopeResponse(200, data, null, message);
+    createSuccessResponse(req, res, data = null, message = null, status = 200) {
+        const apiResponse = new ApiEnvelopeResponse(status, data, null, message);
         this.createResponse(res, apiResponse);
     }
 
-    createErrorResponse(req, res, status, error = null, message = null) {
-        const errorObject = new ApiError(status);
+    createErrorResponse(req, res, error) {
+        const errorObject = new ApiError(error.status);
         const apiResponse = new ApiEnvelopeResponse(
-            status,
+            error.status,
             null,
             errorObject,
-            message,
+            error.message,
         );
         this.createResponse(res, apiResponse);
     }
