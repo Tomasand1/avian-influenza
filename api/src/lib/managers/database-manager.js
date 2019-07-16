@@ -71,6 +71,18 @@ class DatabaseManager {
         }
     }
 
+    async getTransaction(dbName) {
+        const connection = this.getConnection(dbName);
+        if (!connection) {
+            throw new Error('no database connection');
+        }
+        const transaction = await connection.transaction({
+            isolationLevel:
+                Sequelize.Transaction.ISOLATION_LEVELS.REPEATABLE_READ,
+        });
+        return transaction;
+    }
+
     getModel(modelName) {
         return this.models[modelName];
     }
@@ -81,17 +93,6 @@ class DatabaseManager {
         } else {
             return null;
         }
-    }
-
-    test() {
-        this.databases['avian_influenza'].connection
-            .authenticate()
-            .then(() => {
-                console.log('Connection has been established successfully.');
-            })
-            .catch(err => {
-                console.error('Unable to connect to the database:', err);
-            });
     }
 
     closeDatabase() {
