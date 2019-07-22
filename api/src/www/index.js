@@ -3,7 +3,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import errorHandler from 'errorhandler';
 import DefaultRouter from '../routes/default-router';
-import DataRouter from '../routes/data-router';
+import VirusDataRouter from '../routes/virus-data-router';
 
 export default class Server {
     static bootstrap() {
@@ -61,7 +61,10 @@ export default class Server {
         const defaultRouter = new DefaultRouter().init();
         this.app.use('/v1/', defaultRouter);
 
-        const dataRouter = new DataRouter().init();
-        this.app.use('/v1/', dataRouter);
+        const virusDataRouter = new VirusDataRouter().init('Virus');
+        this.app.use('/v1/virus', virusDataRouter);
+
+        const birdDataRouter = new VirusDataRouter().init('Bird');
+        this.app.use('/v1/bird', birdDataRouter);
     }
 }
