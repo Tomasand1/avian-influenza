@@ -1,12 +1,22 @@
 import moment from 'moment';
 
-// TODO: create date validation
-export class ObjectUtils {
+export class DateUtils {
     static getFormatedDate(date) {
-        let formatedDate = moment(date).format('DD/MM/YYYY');
-        if (formatedDate.isValid()) {
-            return formatedDate;
+        const formatedDate = moment(date, 'DD/MM/YYYY', true);
+
+        const validatedDate = validatedDate(formatedDate);
+
+        if (!validatedDate) throw Error('Date provided is not valid');
+
+        return validatedDate;
+    }
+
+    static validateDate(date) {
+        if (date !== null) {
+            if (date.isValid()) {
+                return date;
+            }
         }
-        throw Error('Date provided is not valid');
+        return false;
     }
 }

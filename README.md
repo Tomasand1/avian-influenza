@@ -143,7 +143,7 @@ Properties and values of new entry
 
 **Response**
 
-- `200 OK` on success
+- `201 CREATED` on success
 - `400 BAD REQUEST` on request validation fail
 - `401 UNAUTHORIZED` if user is unauthorized to add new entries
 - `409 CONFLICT` data entry already exists
@@ -175,7 +175,7 @@ Properties and values of new entry
         "human_deaths": 0,
     },
     "message": "Entry was successfully created",
-    "status": 200,
+    "status": 201,
     "error": null,
 }
 ```

@@ -3,6 +3,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import errorHandler from 'errorhandler';
 import DefaultRouter from '../routes/default-router';
+import VirusDataRouter from '../routes/virus-data-router';
 
 export default class Server {
     static bootstrap() {
@@ -52,23 +53,18 @@ export default class Server {
             next();
         });
 
-        // // Initialize Passport and use session
-        // this.app.use(passport.initialize());
-        // this.app.use(passport.session());
-
-        // catch 404 and forward to error handler
-        this.app.use((err, req, res, next) => {
-            err.status = 404;
-            next(err);
-        });
-
         // Error handling
         this.app.use(errorHandler());
     }
 
     routes() {
-        
         const defaultRouter = new DefaultRouter().init();
-        this.app.use('/', defaultRouter);
+        this.app.use('/v1/', defaultRouter);
+
+        const virusDataRouter = new VirusDataRouter().init('Virus');
+        this.app.use('/v1/virus', virusDataRouter);
+
+        const birdDataRouter = new VirusDataRouter().init('Bird');
+        this.app.use('/v1/bird', birdDataRouter);
     }
 }

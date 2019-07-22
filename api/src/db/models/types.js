@@ -20,5 +20,14 @@ export default sequelize => {
         },
     );
 
+    Types.associate = models => {
+        Types.belongsTo(models.Viruses, {
+            through: 'VirusType',
+            sourceKey: 'id',
+            foreignKey: 'type_id',
+        });
+        Types.hasMany(models.VirusTypes);
+    };
+
     return Types;
 };

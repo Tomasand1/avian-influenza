@@ -15,8 +15,62 @@ CREATE TABLE roles(
 	updated_on TIMESTAMP
 );
 
+CREATE TABLE bird_point_data(
+	id uuid DEFAULT uuid_generate_v4(),
+	global_unique_id VARCHAR (355),
+	last_edited_date VARCHAR (100),
+	taxonomic_order NUMERIC,
+	category VARCHAR (10),
+	common_name VARCHAR (100),
+	scientific_name VARCHAR (100),
+	subspecies_common_name VARCHAR (100),
+	subspecies_scientific_name VARCHAR (100),
+	observation_count NUMERIC,
+	breeding_bird_atlas_code VARCHAR (50),
+	breeding_bird_atlas_category VARCHAR (100) NOT NULL,
+	age_sex VARCHAR(100),
+	country VARCHAR (355),
+	country_code VARCHAR (10),
+	state VARCHAR (100),
+	state_code VARCHAR (10),
+	county VARCHAR (100),
+	county_code VARCHAR (10),
+	iba_code VARCHAR (50),
+	bcr_code VARCHAR (50),
+	usfws_code VARCHAR (50),
+	atlas_block VARCHAR (50),
+	locality VARCHAR (200),
+	locality_id VARCHAR (50),
+	locality_type VARCHAR (10),
+	latitude NUMERIC,
+	longitude NUMERIC,
+	observation_date VARCHAR (50),
+	time_observations_started VARCHAR (50),
+	observer_id VARCHAR (50),
+	sampling_event_identifier VARCHAR (50),
+	protocol_type VARCHAR (50),
+	protocol_code VARCHAR (50),
+	project_code VARCHAR (50),
+	duration NUMERIC,
+	effort_distance NUMERIC,
+	effort_area NUMERIC,
+	number_observers NUMERIC,
+	all_species_reported BOOLEAN,
+	group_identifier VARCHAR (50),
+	media BOOLEAN,
+	approved BOOLEAN,
+	reviewed BOOLEAN,
+	reason VARCHAR (355),
+	trip_comments TEXT,
+	species_comments TEXT,
+	created_on TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
+	updated_on TIMESTAMP
+	PRIMARY KEY (id)
+);
+
 CREATE TABLE viruses(
-	id serial PRIMARY KEY,
+	id uuid DEFAULT uuid_generate_v4(),
+	source VARCHAR (100),
 	longitude NUMERIC,
 	latitude NUMERIC,
 	region VARCHAR (100),
@@ -27,6 +81,9 @@ CREATE TABLE viruses(
 	observation_date VARCHAR (10),
 	reporting_date VARCHAR (10),
 	status VARCHAR (50),
+	disease VARCHAR (100) NOT NULL,
+	serotype VARCHAR(100),
+	species_description VARCHAR (355),
 	sum_at_risk NUMERIC,
 	sum_cases NUMERIC,
 	sum_deaths NUMERIC,
@@ -37,7 +94,8 @@ CREATE TABLE viruses(
 	humans_affected NUMERIC,
 	humans_deaths NUMERIC,
 	created_on TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
-	updated_on TIMESTAMP
+	updated_on TIMESTAMP,
+	PRIMARY KEY (id)
 );
 
 CREATE TABLE sources(

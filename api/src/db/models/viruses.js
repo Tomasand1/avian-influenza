@@ -1,4 +1,5 @@
 import * as Sequelize from 'sequelize';
+import { DateUtils } from '../../lib/utils/date-utils';
 
 export default sequelize => {
     const Viruses = sequelize.define(
@@ -9,6 +10,7 @@ export default sequelize => {
                 primaryKey: true,
                 field: 'id',
             },
+            source: { type: Sequelize.STRING(100), field: 'source' },
             longitude: { type: Sequelize.DOUBLE, field: 'longitude' },
             latitude: { type: Sequelize.DOUBLE, field: 'latitude' },
             region: { type: Sequelize.STRING(100), field: 'region' },
@@ -31,6 +33,12 @@ export default sequelize => {
                 field: 'reporting_date',
             },
             status: { type: Sequelize.STRING(50), field: 'status' },
+            disease: { type: Sequelize.STRING(50), field: 'disease' },
+            serotype: { type: Sequelize.STRING(100), field: 'serotype' },
+            speciesDescription: {
+                type: Sequelize.STRING(355),
+                field: 'species_description',
+            },
             sumAtRisk: { type: Sequelize.INTEGER, field: 'sum_at_risk' },
             sumCases: { type: Sequelize.INTEGER, field: 'sum_cases' },
             sumDeaths: { type: Sequelize.INTEGER, field: 'sum_deaths' },
@@ -48,7 +56,7 @@ export default sequelize => {
                 type: Sequelize.INTEGER,
                 field: 'humans_affected',
             },
-            humansDeath: { type: Sequelize.INTEGER, field: 'humans_death' },
+            humansDeath: { type: Sequelize.INTEGER, field: 'humans_deaths' },
             formattedObservationDate: {
                 type: Sequelize.VIRTUAL,
                 get() {
@@ -67,12 +75,6 @@ export default sequelize => {
             timestamps: false,
         },
     );
-
-    Viruses.associate = (models) => {
-        Viruses.hasOne(models.VirusType, { sourceKey: "id", foreignKey: "virus_id" });
-        Viruses.hasMany(models.VirusSpecies, { sourceKey: "id", foreignKey: "virus_id" });
-        Viruses.hasOne(models.VirusSources, { sourceKey: "id", foreignKey: "virus_id" });
-    };
 
     return Viruses;
 };

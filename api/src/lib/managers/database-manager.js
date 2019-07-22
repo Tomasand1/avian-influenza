@@ -6,7 +6,6 @@ class DatabaseManager {
     async init() {
         await this.initDatabase();
         await this.initModels();
-        // this.test();
         return this;
     }
 
@@ -47,7 +46,6 @@ class DatabaseManager {
             }
             const configModels = config.models[0];
             for (const modelInfo of configModels['default']) {
-                console.log(this.databases[modelInfo.database]);
                 if (
                     !this.databases[modelInfo.database] ||
                     !this.databases[modelInfo.database].connection
@@ -57,7 +55,6 @@ class DatabaseManager {
                     );
                 }
                 try {
-                    console.log(this.databases);
                     const database = this.databases[modelInfo.database];
                     const model = database.connection.import(
                         join(pathModels, `${modelInfo.id}.js`),
@@ -74,15 +71,28 @@ class DatabaseManager {
         }
     }
 
-    test() {
-        this.databases['avian_influenza'].connection
-            .authenticate()
-            .then(() => {
-                console.log('Connection has been established successfully.');
-            })
-            .catch(err => {
-                console.error('Unable to connect to the database:', err);
-            });
+    async getTransaction(dbName) {
+        const connection = this.getConnection(dbName);
+        if (!connection) {
+            throw new Error('no database connection');
+        }
+        const transaction = await connection.transaction({
+            isolationLevel:
+                Sequelize.Transaction.ISOLATION_LEVELS.REPEATABLE_READ,
+        });
+        return transaction;
+    }
+
+    getModel(modelName) {
+        return this.models[modelName];
+    }
+
+    getConnection(dbName) {
+        if (this.databases[dbName]) {
+            return this.databases[dbName].connection;
+        } else {
+            return null;
+        }
     }
 
     closeDatabase() {

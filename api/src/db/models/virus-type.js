@@ -7,11 +7,19 @@ export default sequelize => {
             virusId: {
                 type: Sequelize.STRING,
                 primaryKey: true,
+                references: {
+                    model: 'Viruses',
+                    key: 'id',
+                },
                 field: 'virus_id',
             },
             typeId: {
                 type: Sequelize.STRING,
                 primaryKey: true,
+                references: {
+                    model: 'Types',
+                    key: 'id',
+                },
                 field: 'type_id',
             },
         },
@@ -24,6 +32,10 @@ export default sequelize => {
     VirusType.associate = models => {
         VirusType.belongsTo(models.Types, {
             sourceKey: 'typeId',
+            foreignKey: 'id',
+        });
+        VirusType.belongsTo(models.Viruses, {
+            sourceKey: 'virusId',
             foreignKey: 'id',
         });
     };
