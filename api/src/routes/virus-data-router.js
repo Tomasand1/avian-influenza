@@ -10,12 +10,10 @@ export default class VirusDataRouter extends ApiRouter {
         super();
     }
 
-    init(type) {
-        if (type === 'Bird') {
-            this.dataModel = databaseManager.getModel('birds');
-        } else {
-            this.dataModel = databaseManager.getModel('viruses');
-        }
+    init() {
+
+        this.dataModel = databaseManager.getModel('viruses');
+        
 
         this.router.get('/data', async (req, res) => {
             try {
