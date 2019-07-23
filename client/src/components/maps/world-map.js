@@ -64,7 +64,7 @@ export default class WorldMap extends Component {
             0,
             0,
         ]);
-        this.raster.selectAll("path").attr("d", this.path);
+        this.raster.selectAll("image").attr("d", this.path);
     };
 
     zoomed = () => {
@@ -125,7 +125,7 @@ export default class WorldMap extends Component {
             .attr("width", 256)
             .attr("height", 256);
 
-        this.rotateMap(transform.k, 1000);
+        this.rotateMap(transform.k, 1);
     };
 
     stringify = (scale, translate) => {
