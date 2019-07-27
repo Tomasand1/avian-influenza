@@ -1,21 +1,44 @@
 import React, { Component } from "react";
 import * as d3 from "d3";
 import * as geoTile from "d3.geoTile";
+import simpleheat from "simpleheat";
+import {
+    getVirusData,
+    createVirusCircles,
+    updateVirusCircles,
+} from "../virus/virus-point-data";
+import {
+    createBirdCircles,
+    getBirdData,
+    updateBirdCircles,
+} from "../birds/bird-point-data";
+import TimeSlider from "../controls/time-slider";
 
 export default class WorldMap extends Component {
     constructor() {
         super();
 
         this.state = {
+            loading: true,
             width: Math.max(960, window.innerWidth),
             height: Math.max(500, window.innerHeight),
             rotated: 90,
             tau: 2 * Math.PI,
+            baseScale: Math.max(960, window.innerWidth) / (2 * Math.PI),
+            virusData: {},
+            birdData: {},
         };
     }
 
-    componentDidMount = () => {
-        this.createMap();
+    componentDidMount = async () => {
+        const virusData = await getVirusData();
+        const birdData = await getBirdData();
+
+        this.setState({
+            virusData: virusData.data,
+            birdData: birdData.data,
+            loading: false,
+        });
     };
 
     componentDidUpdate = () => {
@@ -25,9 +48,15 @@ export default class WorldMap extends Component {
     createMap = () => {
         this.projection = d3
             .geoMercator()
-            .scale(1)
-            .translate([0, 0])
-            .fitSize([this.state.width, this.state.height]);
+            .scale(1 / this.state.tau)
+            .translate([0, 0]);
+        //.fitSize([this.state.width, this.state.height]);
+
+        this.geoProjection = d3
+            .geoMercator()
+            .scale(this.state.baseScale)
+            .center(this.projection.invert([0, 0]))
+            .translate([0, 0]);
 
         this.path = d3.geoPath().projection(this.projection);
 
@@ -35,17 +64,24 @@ export default class WorldMap extends Component {
 
         this.zoom = d3
             .zoom()
-            .scaleExtent([1 << 11, 1 << 16])
+            .scaleExtent([1 << 11, 1 << 20])
             .on("zoom", this.zoomed);
 
-        console.log(this.zoom.translateExtent());
+        this.svg = d3.select("svg");
 
-        this.svg = d3
-            .select("svg")
-            .attr("width", this.state.width)
-            .attr("height", this.state.height);
+        this.raster = this.svg.select("g");
 
-        this.raster = this.svg.append("g");
+        this.circleSvg = createVirusCircles(
+            this.geoProjection,
+            this.refs,
+            this.state.virusData,
+        );
+
+        this.birdCircles = createBirdCircles(
+            this.geoProjection,
+            this.refs,
+            this.state.birdData,
+        );
 
         this.svg
             .call(this.zoom)
@@ -64,28 +100,102 @@ export default class WorldMap extends Component {
             0,
             0,
         ]);
-        this.raster.selectAll("image").attr("d", this.path);
+        this.raster.selectAll("image").attr("x", this.path);
     };
 
-    zoomed = () => {
-        let transform = d3.event.transform;
+    updateGeoProjection = (projectionScaleFactor, transform) => {
+        if (
+            this.geoProjection.scale() ===
+            projectionScaleFactor * this.state.baseScale
+        ) {
+            this.geoProjection.translate([transform.x, transform.y]);
+        } else {
+            this.geoProjection.translate([transform.x, transform.y]);
+            this.geoProjection.scale(
+                this.state.baseScale * projectionScaleFactor,
+            );
+        }
+    };
 
-        // if (transform.invertX(0) < -0.5) {
-        //     transform.x = 0.5 * transform.k;
-        // } else
+    restrictDrag = transform => {
+        // TODO: find height of the svg
         if (transform.invertY(0) < -0.5) {
             transform.y = 0.5 * transform.k;
-        }
-        // else if (transform.invertX(this.state.width) > 0.4) {
-        //     transform.x =
-        //         (transform.invertX(this.state.width) - 0.4) * transform.k;
-        // }
-        else if (transform.invertY(this.state.height) > 0.5) {
+        } else if (transform.invertY(this.state.height) > 0.5) {
             transform.y =
                 (transform.invertY(this.state.height) - 0.7) * transform.k;
         }
+    };
 
-        let tiles = this.tile
+    filterData = h => {
+        const newBirdData = this.state.birdData.filter(function(d) {
+            return (
+                new Date(d.observationDate) >= h &&
+                new Date(
+                    new Date(d.observationDate).setMonth(
+                        new Date(d.observationDate).getMonth() - 2,
+                    ),
+                ) <= h
+            );
+        });
+
+        const newVirusData = this.state.virusData.filter(function(d) {
+            return (
+                new Date(d.observationDate) >= h &&
+                new Date(
+                    new Date(d.observationDate).setMonth(
+                        new Date(d.observationDate).getMonth() - 2,
+                    ),
+                ) <= h
+            );
+        });
+
+        this.birdCircles = createBirdCircles(
+            this.geoProjection,
+            this.refs,
+            newBirdData,
+        );
+
+        this.circleSvg = createVirusCircles(
+            this.geoProjection,
+            this.refs,
+            newVirusData,
+        );
+
+        updateBirdCircles(this.geoProjection);
+        updateVirusCircles(this.geoProjection, this.projectionScaleFactor);
+    };
+
+    zoomed = () => {
+        const transform = d3.event.transform;
+
+        this.projectionScaleFactor = transform.k / this.state.width;
+
+        //let translate0 = this.geoProjection.translate();
+
+        this.restrictDrag(transform);
+
+        this.updateGeoProjection(this.projectionScaleFactor, transform);
+
+        this.createTileImage(transform);
+
+        updateVirusCircles(
+            this.geoProjection,
+            this.projectionScaleFactor,
+            this.refs,
+        );
+        updateBirdCircles(this.geoProjection, this.projectionScaleFactor);
+
+        // this.rotateMap(
+        //     transform.k,
+        //     d3.event.pageX -
+        //         document.getElementById("svg").getBoundingClientRect().x +
+        //         10,
+        // );
+    };
+
+    createTileImage = transform => {
+        const tiles = this.tile
             .scale(transform.k)
             .translate([transform.x, transform.y])();
 
@@ -93,7 +203,7 @@ export default class WorldMap extends Component {
             .scale(transform.k)
             .translate([transform.x, transform.y]);
 
-        var image = this.raster
+        const image = this.raster
             .attr("transform", this.stringify(tiles.scale, tiles.translate))
             .selectAll("image")
             .data(tiles.filter(([x, y, z]) => Math.max(x, y) < 1 << z), d => d);
@@ -124,12 +234,10 @@ export default class WorldMap extends Component {
             })
             .attr("width", 256)
             .attr("height", 256);
-
-        this.rotateMap(transform.k, 1);
     };
 
     stringify = (scale, translate) => {
-        let k = scale / 256,
+        const k = scale / 256,
             r = scale % 1 ? Number : Math.round;
         return (
             "translate(" +
@@ -141,11 +249,31 @@ export default class WorldMap extends Component {
             ")"
         );
     };
+
     render() {
+        if (this.state.loading) return <div />;
+
+        this.createMap();
+
         return (
-            <div className="main-canvas" ref="mainCanvas">
-                <svg />
-            </div>
+            <React.Fragment>
+                <div className="main-canvas" ref="mainCanvas">
+                    <svg
+                        id={"svg"}
+                        width={this.state.width}
+                        height={this.state.height}
+                    >
+                        <g />
+                        <g ref="circleGroup" />
+                    </svg>
+                    <canvas />
+                </div>
+                <TimeSlider
+                    width={this.state.width}
+                    height={this.props.height}
+                    filterData={this.filterData}
+                />
+            </React.Fragment>
         );
     }
 }
