@@ -12,9 +12,9 @@ const getVirusData = async query => {
         newRequest = new get("http://localhost:8080", "v1", `virus/data`);
     }
 
-    const request = newRequest.init();
+    const request = await newRequest.init();
 
-    return request;
+    return request.data;
 };
 
 const getBirdData = async query => {
@@ -29,9 +29,9 @@ const getBirdData = async query => {
         newRequest = new get("http://localhost:8080", "v1", `bird/data`);
     }
 
-    const request = newRequest.init();
+    const request = await newRequest.init();
 
-    return request;
+    return request.data;
 };
 
 export { getVirusData, getBirdData };
