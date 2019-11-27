@@ -44,7 +44,7 @@ All request must follow version identifier:
 
 **Definition**
 
-`GET /data/type`
+`GET /virus/data/type`
 
 **Arguments**
 
@@ -77,7 +77,7 @@ Query (Optional):
 
 **Definition**
 
-`GET /data`
+`GET /virus/data`
 
 **Arguments**
 
@@ -129,13 +129,52 @@ Query (Optional):
 }
 ```
 
+### Get data about birds
+
+---
+
+**Definition**
+
+`GET /bird/data`
+
+**Arguments**
+
+Query (Optional):
+
+- `id` to get data of specific bird
+- `species` to get data about specific bird species
+- `region` to get data from specific region
+- `start date` to get specific data range
+- `end date` to get data of specific range
+
+**Response**
+
+- `200 OK` on success
+- `400 BAD REQUEST` on request validation fail
+- `404 NOT FOUND` if virus is not found
+
+```json
+{
+    "data": [
+        {
+            "id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
+            "globalUniqueId": "URN:CornellLabOfOrnithology:EBIRD:OBS289667747",
+            ...
+        }
+    ],
+    "message": "Entry was successfully retrieved",
+    "status": 200,
+    "error": null,
+}
+```
+
 ### Create new virus entry
 
 ---
 
 **Definition**
 
-`POST /data`
+`POST /virus/data`
 
 **Arguments**
 
@@ -184,7 +223,7 @@ Properties and values of new entry
 
 **Definition**
 
-`PATCH /data/<virus-identifier>`
+`PATCH /virus/data/<virus-identifier>`
 
 **Arguments**
 
@@ -223,7 +262,7 @@ Body (Required):
 
 **Definition**
 
-`DELETE /data/<virus-identifier>`
+`DELETE /virus/data/<virus-identifier>`
 
 **Arguments**
 

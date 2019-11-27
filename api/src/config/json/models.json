@@ -4,6 +4,10 @@
         "database": "avian_influenza"
     },
     {
+        "id": "birds",
+        "database": "avian_influenza"
+    },
+    {
         "id": "types",
         "database": "avian_influenza"
     },

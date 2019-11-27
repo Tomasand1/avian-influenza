@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 import errorHandler from 'errorhandler';
 import DefaultRouter from '../routes/default-router';
 import VirusDataRouter from '../routes/virus-data-router';
+import BirdDataRouter from '../routes/bird-data-router';
 
 export default class Server {
     static bootstrap() {
@@ -61,10 +62,10 @@ export default class Server {
         const defaultRouter = new DefaultRouter().init();
         this.app.use('/v1/', defaultRouter);
 
-        const virusDataRouter = new VirusDataRouter().init('Virus');
+        const virusDataRouter = new VirusDataRouter().init();
         this.app.use('/v1/virus', virusDataRouter);
 
-        const birdDataRouter = new VirusDataRouter().init('Bird');
+        const birdDataRouter = new BirdDataRouter().init();
         this.app.use('/v1/bird', birdDataRouter);
     }
 }

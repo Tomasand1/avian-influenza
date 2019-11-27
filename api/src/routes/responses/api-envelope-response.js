@@ -6,7 +6,6 @@ export class ApiEnvelopeResponse {
         this.data = data;
         this.error = error;
         this.message = message;
-        console.log(status);
     }
 
     getJson() {

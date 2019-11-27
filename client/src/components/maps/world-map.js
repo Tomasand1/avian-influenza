@@ -1,151 +1,139 @@
 import React, { Component } from "react";
 import * as d3 from "d3";
-import * as geoTile from "d3.geoTile";
+import * as L from "leaflet";
+import "leaflet.heat";
+
+import { getVirusData, createVirusCircles } from "../virus/virus-point-data";
+import {
+  createBirdCircles,
+  getBirdData,
+  updateBirdCircles,
+  timeScale
+} from "../birds/bird-point-data";
+import TimeSlider from "../controls/time-slider";
+import MoonLoader from "react-spinners/PropagateLoader";
+import SideMenu from "../controls/side-menu";
+import moment from "moment";
 
 export default class WorldMap extends Component {
-    constructor() {
-        super();
+  constructor() {
+    super();
 
-        this.state = {
-            width: Math.max(960, window.innerWidth),
-            height: Math.max(500, window.innerHeight),
-            rotated: 90,
-            tau: 2 * Math.PI,
-        };
-    }
-
-    componentDidMount = () => {
-        this.createMap();
+    this.state = {
+      loading: true,
+      width: Math.max(960, window.innerWidth),
+      height: Math.max(500, window.innerHeight),
+      rotated: 90,
+      tau: 2 * Math.PI,
+      baseScale: Math.max(960, window.innerWidth) / (2 * Math.PI),
+      virusData: {},
+      birdData: {}
     };
+  }
 
-    componentDidUpdate = () => {
-        this.createMap();
-    };
+  componentDidMount = async () => {
+    const virusData = await getVirusData();
+    const birdData = await this.selectData("commonName=duck sp.");
+    const birdDataS = await this.selectData("commonName=Sterna sp.");
 
-    createMap = () => {
-        this.projection = d3
-            .geoMercator()
-            .scale(1)
-            .translate([0, 0])
-            .fitSize([this.state.width, this.state.height]);
+    this.setState({
+      virusData: virusData.data,
+      birdData: birdData.data.concat(birdDataS.data),
+      loading: false
+    });
+  };
 
-        this.path = d3.geoPath().projection(this.projection);
+  componentDidUpdate = () => {
+    this.createMap();
+  };
 
-        this.tile = geoTile().size([this.state.width, this.state.height]);
+  createMap = () => {
+    this.map = L.map("map").setView([0, 0], 2);
+    const mapLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
+    L.tileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; " + mapLink + " Contributors",
+      minZoom: 2,
+      maxZoom: 10
+    }).addTo(this.map);
 
-        this.zoom = d3
-            .zoom()
-            .scaleExtent([1 << 11, 1 << 16])
-            .on("zoom", this.zoomed);
+    this.svg = L.svg().addTo(this.map);
+    this.canvas = L.canvas().addTo(this.map);
 
-        console.log(this.zoom.translateExtent());
+    this.heatlayer = L.heatLayer([], { radius: 15 }).addTo(this.map);
 
-        this.svg = d3
-            .select("svg")
-            .attr("width", this.state.width)
-            .attr("height", this.state.height);
+    this.svg = d3.select("#map").select("svg");
 
-        this.raster = this.svg.append("g");
+    this.raster = this.svg.select("g");
 
-        this.svg
-            .call(this.zoom)
-            .call(
-                this.zoom.transform,
-                d3.zoomIdentity
-                    .translate(this.state.width / 2, this.state.height / 2)
-                    .scale(1 << 12),
-            );
-    };
+    //this.filterData(new Date("2010-01-01"));
 
-    rotateMap = (scale, endX) => {
-        this.projection.rotate([
-            this.state.rotated +
-                ((endX - 0) * 360) / (scale * this.state.width),
-            0,
-            0,
-        ]);
-        this.raster.selectAll("path").attr("d", this.path);
-    };
+    this.map.on("moveend", this.zoomed);
+  };
 
-    zoomed = () => {
-        let transform = d3.event.transform;
+  selectData = async types => {
+    return await getBirdData(types);
+  };
 
-        // if (transform.invertX(0) < -0.5) {
-        //     transform.x = 0.5 * transform.k;
-        // } else
-        if (transform.invertY(0) < -0.5) {
-            transform.y = 0.5 * transform.k;
-        }
-        // else if (transform.invertX(this.state.width) > 0.4) {
-        //     transform.x =
-        //         (transform.invertX(this.state.width) - 0.4) * transform.k;
-        // }
-        else if (transform.invertY(this.state.height) > 0.5) {
-            transform.y =
-                (transform.invertY(this.state.height) - 0.7) * transform.k;
-        }
+  filterData = h => {
+    const newBirdData = this.state.birdData.filter(function(d) {
+      const observationDate = new Date(d.observationDate);
+      //console.log(moment(h).week())
+      return (
+        observationDate.getMonth() === h.getMonth() &&
+        observationDate.getFullYear() === h.getFullYear() &&
+        moment(observationDate).week() === moment(h).week()
+      );
+    });
 
-        let tiles = this.tile
-            .scale(transform.k)
-            .translate([transform.x, transform.y])();
+    const newVirusData = this.state.virusData.filter(function(d) {
+      const observationDate = new Date(d.observationDate);
+      return (
+        observationDate.getMonth() === h.getMonth() &&
+        observationDate.getFullYear() === h.getFullYear()
+      );
+    });
 
-        this.projection
-            .scale(transform.k)
-            .translate([transform.x, transform.y]);
+    createBirdCircles(this.map, newBirdData);
 
-        var image = this.raster
-            .attr("transform", this.stringify(tiles.scale, tiles.translate))
-            .selectAll("image")
-            .data(tiles.filter(([x, y, z]) => Math.max(x, y) < 1 << z), d => d);
+    createVirusCircles(this.heatlayer, this.map, newVirusData);
 
-        image.exit().remove();
+    timeScale(this.map);
+  };
 
-        image
-            .enter()
-            .append("image")
-            .attr("xlink:href", function(d) {
-                return (
-                    "http://" +
-                    "abc"[d[1] % 3] +
-                    ".tile.openstreetmap.org/" +
-                    d[2] +
-                    "/" +
-                    d[0] +
-                    "/" +
-                    d[1] +
-                    ".png"
-                );
-            })
-            .attr("x", function(d) {
-                return `${d[0] * 256}px`;
-            })
-            .attr("y", function(d) {
-                return `${d[1] * 256}px`;
-            })
-            .attr("width", 256)
-            .attr("height", 256);
+  zoomed = () => {
+    updateBirdCircles(this.map);
+  };
 
-        this.rotateMap(transform.k, 1000);
-    };
+  render() {
+    if (this.state.loading)
+      return (
+        <div style={{ width: "100vw", height: "100vh" }}>
+          <MoonLoader
+            css={{
+              position: "absolute",
+              top: "45%",
+              left: "49%"
+            }}
+            sizeUnit={"px"}
+            size={20}
+            color={"#91ebff"}
+            loading={this.state.loading}
+          />
+        </div>
+      );
 
-    stringify = (scale, translate) => {
-        let k = scale / 256,
-            r = scale % 1 ? Number : Math.round;
-        return (
-            "translate(" +
-            r(translate[0] * scale) +
-            "," +
-            r(translate[1] * scale) +
-            ") scale(" +
-            k +
-            ")"
-        );
-    };
-    render() {
-        return (
-            <div className="main-canvas" ref="mainCanvas">
-                <svg />
-            </div>
-        );
-    }
+    return (
+      <React.Fragment>
+        <SideMenu />
+
+        <div id="map" className="main-canvas" ref="mainCanvas" />
+
+        <TimeSlider
+          width={this.state.width}
+          height={this.props.height}
+          filterData={this.filterData}
+        />
+      </React.Fragment>
+    );
+  }
 }

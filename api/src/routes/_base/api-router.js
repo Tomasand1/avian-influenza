@@ -20,11 +20,17 @@ export default class ApiRouter {
     }
 
     createSuccessResponse(req, res, data = null, message = null, status = 200) {
-        const apiResponse = new ApiEnvelopeResponse(status, data, null, message);
+        const apiResponse = new ApiEnvelopeResponse(
+            status,
+            data,
+            null,
+            message,
+        );
         this.createResponse(res, apiResponse);
     }
 
     createErrorResponse(req, res, error) {
+        console.log(error);
         const errorObject = new ApiError(error.status);
         const apiResponse = new ApiEnvelopeResponse(
             error.status,
