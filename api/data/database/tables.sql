@@ -25,9 +25,9 @@ CREATE TABLE bird_point_data(
 	scientific_name VARCHAR (100),
 	subspecies_common_name VARCHAR (100),
 	subspecies_scientific_name VARCHAR (100),
-	observation_count NUMERIC,
+	observation_count VARCHAR(10),
 	breeding_bird_atlas_code VARCHAR (50),
-	breeding_bird_atlas_category VARCHAR (100) NOT NULL,
+	breeding_bird_atlas_category VARCHAR (100),
 	age_sex VARCHAR(100),
 	country VARCHAR (355),
 	country_code VARCHAR (10),
@@ -64,7 +64,7 @@ CREATE TABLE bird_point_data(
 	trip_comments TEXT,
 	species_comments TEXT,
 	created_on TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
-	updated_on TIMESTAMP
+	updated_on TIMESTAMP,
 	PRIMARY KEY (id)
 );
 

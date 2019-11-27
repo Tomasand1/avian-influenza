@@ -16,7 +16,7 @@ export default class BirdDataRouter extends ApiRouter {
         this.router.get('/data', async (req, res) => {
             try {
                 const query = req.query;
-
+                
                 const data = await this.dataModel.findAll({
                     where: {
                         ...query,

@@ -107,7 +107,7 @@ export default class TimeSlider extends Component {
                 this.setState({
                     moving: true,
                 });
-                this.timer = setInterval(this.step, 300);
+                this.timer = setInterval(this.step, 700);
                 button.text("Pause");
             }
             console.log("Slider moving: " + this.state.moving);
@@ -130,8 +130,9 @@ export default class TimeSlider extends Component {
         this.update(this.xDomain.invert(this.state.currentValue));
         this.setState({
             currentValue:
-                this.state.currentValue + this.state.targetValue / 151,
+                this.state.currentValue + this.state.targetValue / 522,
         });
+        console.log(this.xDomain.invert(this.state.currentValue));
         if (this.state.currentValue > this.state.targetValue) {
             this.setState({
                 moving: false,

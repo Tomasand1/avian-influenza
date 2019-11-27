@@ -1,55 +1,100 @@
 import { getBirdData } from "../../api-requests/data-request";
 import * as d3 from "d3";
+import * as L from "leaflet";
 
-const getData = async () => {
-    return await getBirdData();
+const getData = async query => {
+  return await getBirdData(query);
 };
 
-const createCircles = (projection, refs, data) => {
-    let svg = d3.select(refs.circleGroup);
+const radius = d3
+  .scaleSqrt()
+  .domain([0, 100000])
+  .range([0, 15]);
 
-    let geoProjection = projection;
+const color = d3
+  .scaleOrdinal()
+  .domain(["duck sp.", "Sterna sp.", "swan sp.", "goose sp."])
+  //.interpolate(d3.interpolateHcl)
+  .range([d3.rgb("#507AFF"), d3.rgb("#FF4500")]);
 
-    let circles = svg.selectAll(".bird-circle").data(data);
+const createCircles = (map, data) => {
+  let svg = d3.select("g");
 
-    circles.exit().remove();
+  const radialGradient = svg
+    .append("defs")
+    .append("radialGradient")
+    .attr("id", "radial-gradient");
 
-    circles
-        .enter()
-        .append("circle")
-        .attr("class", "bird-circle")
-        .attr("cx", function(d) {
-            return geoProjection([d.longitude, d.latitude])[0];
-        })
-        .attr("cy", function(d) {
-            return geoProjection([d.longitude, d.latitude])[1];
-        })
-        .attr("r", 2)
-        .style("fill", function(d) {
-            return "black";
-        })
-        .attr("stroke", function(d) {
-            return "black";
-        })
-        .attr("stroke-width", 1)
-        .attr("fill-opacity", 1);
+  radialGradient
+    .append("stop")
+    .attr("offset", "10%")
+    .attr("stop-color", "#D3D3D3");
+
+  radialGradient
+    .append("stop")
+    .attr("offset", "90%")
+    .attr("stop-color", "#808080");
+
+  let circles = svg.selectAll(".bird-circle").data(data);
+
+  circles.exit().remove();
+
+  circles
+    .enter()
+    .append("circle")
+    .attr("class", "bird-circle")
+    .attr("cx", function(d) {
+      return map.latLngToLayerPoint(L.latLng(d.latitude, d.longitude)).x;
+    })
+    .attr("cy", function(d) {
+      return map.latLngToLayerPoint(L.latLng(d.latitude, d.longitude)).y;
+    })
+    .attr("r", d => {
+      return (
+        radius(d.observationCount !== "X" ? d.observationCount : 10) *
+        map.getZoom()
+      );
+    })
+    .style("fill", function(d) {
+      return color(d.commonName);
+    })
+    .attr("stroke", function(d) {
+      return color(d.commonName);
+    })
+    .attr("stroke-width", 0.5)
+
+    .attr("fill-opacity", 0.5);
 };
 
-const updateCircles = (projection, scale) => {
-    let geoProjection = projection;
-    d3.selectAll(".bird-circle")
-        .attr("cx", function(d) {
-            return geoProjection([d.longitude, d.latitude])[0];
-        })
-        .attr("cy", function(d) {
-            return geoProjection([d.longitude, d.latitude])[1];
-        });
+const updateCircles = map => {
+  d3.selectAll(".bird-circle")
+    .attr("cx", function(d) {
+      return map.latLngToLayerPoint(L.latLng(d.latitude, d.longitude)).x;
+    })
+    .attr("cy", function(d) {
+      return map.latLngToLayerPoint(L.latLng(d.latitude, d.longitude)).y;
+    })
+    .attr("r", d => {
+      return (
+        radius(d.observationCount !== "X" ? d.observationCount : 10) *
+        map.getZoom()
+      );
+    });
+};
 
-    //TODO: make clusers smaller when zoomed out
+const timeScale = map => {
+  d3.selectAll(".bird-circle")
+    .attr("cx", function(d) {
+      return map.latLngToLayerPoint(L.latLng(d.latitude, d.longitude)).x;
+    })
+    .attr("cy", function(d) {
+      return map.latLngToLayerPoint(L.latLng(d.latitude, d.longitude)).y;
+    });
 };
 
 export {
-    getData as getBirdData,
-    createCircles as createBirdCircles,
-    updateCircles as updateBirdCircles,
+  getData as getBirdData,
+  createCircles as createBirdCircles,
+  updateCircles as updateBirdCircles,
+  timeScale
 };
