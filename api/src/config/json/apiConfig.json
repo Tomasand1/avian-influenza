@@ -1,0 +1,25 @@
+{
+    "errorCodes": {
+        "400": "VALIDATION_ERROR",
+        "401": "USER_NOT_AUTHORIZED",
+        "404": "ENTRY_NOT_FOUND",
+        "409": "ENTRY_ALREADY_EXISTS",
+        "500": "SERVER_ERROR",
+        "default": "UNEXPECTED_ERROR"
+    },
+    "responseMessages": {
+        "200": "Content was successfully retrieved",
+        "201": "Entry was created successfully",
+        "204": "Operation was successful. Not content to return.",
+        "defaultSuccess": "Request was successful.",
+        "error": "Error occurred."
+    },
+    "errorMessages": {
+        "400": "Request was not validated. Entries were not valid.",
+        "401": "User is not authorized to execute request.",
+        "404": "No content was found according to given data.",
+        "409": "Entry already exists.",
+        "500": "Unexpected server error.",
+        "default": "Unexpected error occurred."
+    }
+}

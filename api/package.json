@@ -1,0 +1,50 @@
+{
+  "name": "avian-influenza",
+  "version": "1.0.0",
+  "description": "Spatial/temporal visualization platform for avian influenza",
+  "main": "index.js",
+  "scripts": {
+    "diff": "gulp diff",
+    "clean": "gulp clean",
+    "start": "node build/bin/index.js",
+    "start:dev": "gulp build && nodemon build/bin/index.js",
+    "build": "gulp build",
+    "test": "mocha build/test/index.js",
+    "postinstall": "npm run build",
+    "debug": "node --nolazy --inspect-brk=9229 build/bin/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tomasand1/avian-influenza.git"
+  },
+  "author": "Tomas Andriuskevicius",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tomasand1/avian-influenza/issues"
+  },
+  "homepage": "https://github.com/Tomasand1/avian-influenza#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.0.0",
+    "errorhandler": "^1.5.1",
+    "express": "^4.17.1",
+    "moment": "^2.24.0",
+    "npm": "^6.9.0",
+    "pg": "^7.11.0",
+    "sequelize": "^5.8.10",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/polyfill": "^7.4.4",
+    "@babel/preset-env": "^7.4.5",
+    "babel-plugin-module-resolver": "^3.2.0",
+    "del": "^4.1.1",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-sourcemaps": "^2.6.5",
+    "nodemon": "^1.19.1"
+  }
+}
