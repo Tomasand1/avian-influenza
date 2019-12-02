@@ -33,18 +33,19 @@ export default class WorldMap extends Component {
 
   componentDidMount = async () => {
     const virusData = await getVirusData();
-    const birdData = await this.selectData("commonName=duck sp.");
-    const birdDataS = await this.selectData("commonName=Sterna sp.");
+    // const birdData = await this.selectData("commonName=duck sp.");
+    const birdData = await this.selectData("commonName=Sterna sp.");
 
     this.setState({
       virusData: virusData.data,
-      birdData: birdData.data.concat(birdDataS.data),
+      birdData: birdData.data,
       loading: false
     });
   };
 
   componentDidUpdate = () => {
-    this.createMap();
+    console.log(this.map);
+    if (this.map === undefined) this.createMap();
   };
 
   createMap = () => {
@@ -68,6 +69,14 @@ export default class WorldMap extends Component {
     //this.filterData(new Date("2010-01-01"));
 
     this.map.on("moveend", this.zoomed);
+  };
+
+  handleDataChange = async data => {
+    const birdDataS = await this.selectData(`commonName=${data}`);
+    this.setState({
+      birdData: this.state.birdData.concat(birdDataS.data),
+      loading: false
+    });
   };
 
   selectData = async types => {
@@ -124,7 +133,7 @@ export default class WorldMap extends Component {
 
     return (
       <React.Fragment>
-        <SideMenu />
+        <SideMenu submit={this.handleDataChange} />
 
         <div id="map" className="main-canvas" ref="mainCanvas" />
 

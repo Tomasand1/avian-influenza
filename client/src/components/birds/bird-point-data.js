@@ -52,6 +52,7 @@ const createCircles = (map, data) => {
     .attr("r", d => {
       return (
         radius(d.observationCount !== "X" ? d.observationCount : 10) *
+        3 *
         map.getZoom()
       );
     })
@@ -77,6 +78,7 @@ const updateCircles = map => {
     .attr("r", d => {
       return (
         radius(d.observationCount !== "X" ? d.observationCount : 10) *
+        3 *
         map.getZoom()
       );
     });
