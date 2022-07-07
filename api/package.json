@@ -29,7 +29,7 @@
     "dotenv": "^8.0.0",
     "errorhandler": "^1.5.1",
     "express": "^4.17.1",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "npm": "^6.9.0",
     "pg": "^7.11.0",
     "sequelize": "^5.8.10",
